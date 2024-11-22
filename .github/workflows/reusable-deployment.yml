@@ -17,8 +17,6 @@ on:
       helm-release-name:
         default: todoapp
         type: string
-      artifact_matrix:
-        type: string
 jobs:
     deploy-helm:
       name: ${{ inputs.environment }}
@@ -33,12 +31,12 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          name: helm-artifacts-${{ github.event.inputs.artifact_matrix }}
+          name: helm-artifacts-${{ matrix.OsType }}-${{ matrix.PythonVersion }}
           path: .
 
       - uses: actions/download-artifact@v4
         with:
-          name: kind-cluster-${{ github.event.inputs.artifact_matrix }}
+          name: kind-cluster-${{ matrix.OsType }}-${{ matrix.PythonVersion }}
           path: .
 
       - name: Set Up Helm
