@@ -158,6 +158,7 @@ jobs:
       environment: development
       version: ${{ github.sha }}
       artifact_matrix: ${{ github.event.inputs.artifact_matrix }}
+      helm-release-name: todoapp-development
 
   deploy-helm-stg:
     name: Deploy helm to Staging
