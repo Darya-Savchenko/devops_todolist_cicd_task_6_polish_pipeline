@@ -9,19 +9,12 @@ on:
     branches: ["main"]
   workflow_dispatch:
     inputs:
-      os:
-        description: 'OS to deploy (ubuntu-latest or windows-latest)'
+      artifact_matrix:
+        description: 'Choose matrix artifact'
+        default: 'ubuntu-latest-3.9'
         required: true
-        default: 'ubuntu-latest'
         type: choice
-        options: [ ubuntu-latest, windows-latest ]
-
-      python-version:
-        description: 'Python version to deploy (3.8 or 3.9)'
-        required: true
-        default: '3.8'
-        type: choice
-        options: [ 3.8, 3.9 ]
+        options: [ 'windows-latest-3.8', 'windows-latest-3.9', 'ubuntu-latest-3.8', 'ubuntu-latest-3.9' ]
 
 concurrency:
   group: ${{ github.workflow}}-${{ github.ref }}
@@ -103,7 +96,7 @@ jobs:
     - uses: actions/download-artifact@v4
       name: Download python artifacts
       with:
-        name: python-artifacts-${{ matrix.OsType }}-${{ matrix.PythonVersion }}
+        name: python-artifacts-${{ github.event.inputs.artifact_matrix }}
         path: .
 
     - name: Login to Docker Hub
@@ -128,7 +121,7 @@ jobs:
 
     - uses: actions/download-artifact@v4
       with:
-        name: helm-artifacts-${{ matrix.OsType }}-${{ matrix.PythonVersion }}
+        name: helm-artifacts-${{ github.event.inputs.artifact_matrix }}
         path: .
 
     - name: Set Up Helm
@@ -158,6 +151,7 @@ jobs:
       environment: development
       version: ${{ github.sha }}
       helm-release-name: todoapp-development
+      artifact_matrix: ${{ github.event.inputs.artifact_matrix }}
 
   deploy-helm-stg:
     name: Deploy helm to Staging
@@ -169,3 +163,5 @@ jobs:
       version: ${{ github.sha }}
       helm-values-path: ./todoapp/values/stg.yaml
       helm-release-name: todoapp-staging
+      artifact_matrix: ${{ github.event.inputs.artifact_matrix }}
+
